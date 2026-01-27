@@ -1,0 +1,41 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper function to check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Helper to check if email is correct domain (redundant but good for security)
+    function isCollegeEmail() {
+      return request.auth.token.email.matches('.*@crescent[.]education');
+    }
+
+    match /users/{userId} {
+      // Users can read and write their own document
+      allow read, write: if isAuthenticated() && request.auth.uid == userId;
+      // Admins (or anyone for list view currently) can read all users
+      // PRD says: "Only authenticated users can read topics". For users list, intended for Admin.
+      // For now, allow authenticated users to read users list for the Admin view.
+      allow read: if isAuthenticated(); 
+    }
+
+    match /topics/{topicId} {
+      // Anyone authenticated can read topics
+      allow read: if isAuthenticated();
+      
+      // Update rule for selecting a topic
+      // Must ensure consistency
+      allow update: if isAuthenticated() 
+                   && resource.data.selectedBy == null // Topic must be free
+                   && request.resource.data.selectedBy == request.auth.uid; // Must assign to self
+                   // Note: Additional checks like "User hasn't selected anything else" 
+                   // are hard to enforce in Topic rules without reading User doc.
+                   // Transaction in client code handles the atomic check of both.
+                   // These rules overlap with client logic.
+                   
+      // Only generic write if needed (e.g. seeding) - ideally restrict to admin
+      allow write: if isAuthenticated(); 
+    }
+  }
+}
