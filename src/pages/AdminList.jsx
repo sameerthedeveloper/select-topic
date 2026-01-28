@@ -26,8 +26,6 @@ export default function AdminList() {
                   email: d.email,
                   topicId: d.selectedTopicId,
                   topic: d.selectedTopicName || 'N/A',
-                  topicId: d.selectedTopicId,
-                  topic: d.selectedTopicName || 'N/A',
                   time: d.createdAt ? d.createdAt.toDate().toLocaleString() : 'N/A',
                   rrn: d.rrn,
                   status: d.status
