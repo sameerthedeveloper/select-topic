@@ -40,7 +40,7 @@ export default function Login() {
                 Topic Selection
              </h2>
              <p className="mt-2 text-[15px] text-gray-500 font-medium">
-                Sign in with your college account
+                Sign in with Google to continue
              </p>
            </div>
 
@@ -72,7 +72,7 @@ export default function Login() {
            <div className="mt-8 text-center">
                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-500">
                   <span className="w-1.5 h-1.5 bg-gray-400 rounded-full mr-2"></span>
-                  @crescent.education accounts only
+                  Personal accounts require RRN & Admin Approval
                </span>
            </div>
         </div>

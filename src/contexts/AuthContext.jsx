@@ -17,13 +17,7 @@ export function AuthProvider({ children }) {
   async function login() {
     try {
       const result = await signInWithPopup(auth, googleProvider);
-      const user = result.user;
-      
-      if (!user.email.endsWith('@crescent.education')) {
-        await logout();
-        throw new Error('Only official Crescent Education accounts are allowed.');
-      }
-      return user;
+      return result.user;
     } catch (error) {
       console.error("Login failed", error);
       throw error;
@@ -37,15 +31,8 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        if (!user.email.endsWith('@crescent.education')) {
-           await signOut(auth);
-           setCurrentUser(null);
-           setUserData(null);
-           setLoading(false);
-           return;
-        }
-        
         setCurrentUser(user);
+        
         // Fetch additional user data from Firestore if exists
         const userDocRef = doc(db, 'users', user.uid);
         const docSnap = await getDoc(userDocRef);

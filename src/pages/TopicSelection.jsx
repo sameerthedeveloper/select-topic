@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { db } from '../firebase';
-import { collection, query, where, getDocs, runTransaction, doc, serverTimestamp } from 'firebase/firestore';
+import { collection, query, where, getDocs, runTransaction, doc, serverTimestamp, setDoc } from 'firebase/firestore';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { LogOut, Lock } from 'lucide-react';
@@ -13,6 +13,9 @@ export default function TopicSelection() {
   const [error, setError] = useState('');
   const { currentUser, userData, logout } = useAuth();
   const navigate = useNavigate();
+  
+  const [rrnInput, setRrnInput] = useState('');
+  const [submittingRrn, setSubmittingRrn] = useState(false);
 
   useEffect(() => {
     // If user already has a topic, redirect to dashboard
@@ -110,6 +113,79 @@ export default function TopicSelection() {
       setTopics(list);
     }
   };
+
+  const handleRrnSubmit = async (e) => {
+    e.preventDefault();
+    if (!rrnInput.trim()) return;
+    
+    setSubmittingRrn(true);
+    try {
+        await setDoc(doc(db, 'users', currentUser.uid), {
+            email: currentUser.email,
+            name: currentUser.displayName,
+            rrn: rrnInput.trim(),
+            status: 'pending',
+            createdAt: serverTimestamp()
+        }, { merge: true });
+        window.location.reload();
+    } catch (e) {
+        console.error("Error saving RRN:", e);
+        setError("Failed to submit RRN.");
+    } finally {
+        setSubmittingRrn(false);
+    }
+  };
+
+  // Check for Personal Account Status
+  const isCrescentEmail = currentUser?.email?.endsWith('@crescent.education');
+  
+  // 1. If personal email and NO RRN => Show RRN Input
+  if (!isCrescentEmail && !userData?.rrn) {
+      return (
+        <div className="min-h-screen bg-[#F2F2F7] flex items-center justify-center p-4">
+             <div className="bg-white p-8 rounded-[2rem] shadow-sm text-center max-w-sm w-full">
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">Student Verification</h2>
+                <p className="text-gray-500 text-[15px] mb-6">Please enter your RRN to request access.</p>
+                <form onSubmit={handleRrnSubmit} className="space-y-4">
+                    <input
+                        type="text"
+                        value={rrnInput}
+                        onChange={(e) => setRrnInput(e.target.value)}
+                        className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/20 focus:border-[#007AFF] transition-all uppercase placeholder-gray-400"
+                        placeholder="Enter RRN (e.g. 1900118)"
+                        required
+                    />
+                    <button
+                        type="submit"
+                        disabled={submittingRrn}
+                        className="w-full bg-[#007AFF] hover:bg-[#007AFF]/90 text-white font-semibold py-3 px-4 rounded-xl transition-colors disabled:opacity-70"
+                    >
+                        {submittingRrn ? 'Submitting...' : 'Request Access'}
+                    </button>
+                    <button onClick={logout} type="button" className="text-sm text-gray-400 hover:text-gray-600">Sign Out</button>
+                </form>
+             </div>
+        </div>
+      );
+  }
+
+  // 2. If personal email and Pending => Show Waiting Screen
+  if (!isCrescentEmail && userData?.status !== 'approved') {
+      return (
+        <div className="min-h-screen bg-[#F2F2F7] flex items-center justify-center p-4">
+             <div className="bg-white p-8 rounded-[2rem] shadow-sm text-center max-w-sm w-full">
+                <div className="mx-auto w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mb-6">
+                    <div className="w-8 h-8 text-yellow-600">⏳</div>
+                </div>
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">Approval Pending</h2>
+                <p className="text-gray-500 text-[15px] mb-6 leading-relaxed">
+                    Your request for <strong>{userData.rrn}</strong> is waiting for admin approval. Please check back later.
+                </p>
+                <button onClick={logout} className="text-[#007AFF] font-medium hover:underline">Sign Out</button>
+             </div>
+        </div>
+      );
+  }
 
 
   return (
