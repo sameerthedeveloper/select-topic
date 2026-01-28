@@ -3,6 +3,7 @@ export const osTopics = [
     { id: 'windows_11', name: 'Windows 11', description: 'Latest major release of Microsoft\'s Windows NT operating system.' },
     { id: 'windows_10', name: 'Windows 10', description: 'Personal computer operating system developed by Microsoft.' },
     { id: 'windows_8_1', name: 'Windows 8.1', description: 'Upgrade for Windows 8, addressing complaints of the original.' },
+    { id: 'windows_8', name: 'Windows 8', description: 'Upgrade for Windows 7, addressing complaints of the original.' },
     { id: 'windows_7', name: 'Windows 7', description: 'Widely used version of Windows known for its stability and Aero interface.' },
     { id: 'windows_vista', name: 'Windows Vista', description: 'Introduced the Aero visual style and stricter security (UAC).' },
     { id: 'windows_xp', name: 'Windows XP', description: 'One of the most popular Windows versions, based on the NT kernel.' },
@@ -84,6 +85,7 @@ export const osTopics = [
     { id: 'ubuntu_touch', name: 'Ubuntu Touch', description: 'Mobile version of the Ubuntu operating system.' },
     { id: 'tizen', name: 'Tizen', description: 'Linux-based mobile OS, used in Samsung watches/TVs.' },
 
+    { id: 'funtouch', name: 'FunTouchOS', description: 'Distributed operating system developed by Vivo.' },
     // --- Unix / BSD family ---
     { id: 'freebsd', name: 'FreeBSD', description: 'Operating system used to power modern servers, desktops, and embedded platforms.' },
     { id: 'openbsd', name: 'OpenBSD', description: 'Focused on security and code correctness.' },
