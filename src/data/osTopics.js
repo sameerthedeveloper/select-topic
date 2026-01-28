@@ -46,7 +46,7 @@ export const osTopics = [
     { id: 'tails', name: 'Tails', description: 'Security-focused live OS aimed at preserving privacy.' },
     { id: 'mx_linux', name: 'MX Linux', description: 'Midweight distro known for stability and performance.' },
     { id: 'deepin', name: 'Deepin', description: 'Chinese distro known for its beautiful DDE desktop environment.' },
-
+    { id: 'rockylinux', name: 'Rocky Linux', description: 'Rocky Linux is a free and open source Linux distribution developed by Rocky Enterprise Software Foundation.' },
     // --- Linux Distributions (RPM-based) ---
     { id: 'fedora_workstation', name: 'Fedora Workstation', description: 'Upstream source for RHEL, features latest tech.' },
     { id: 'rhel', name: 'Red Hat Enterprise Linux', description: 'Commercial enterprise Linux distribution.' },
