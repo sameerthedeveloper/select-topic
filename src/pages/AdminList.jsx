@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { db } from '../firebase';
-import { collection, getDocs, doc, writeBatch, query, where, setDoc, updateDoc, getDoc } from 'firebase/firestore';
+import { collection, getDocs, doc, writeBatch, setDoc, updateDoc, getDoc } from 'firebase/firestore';
 import { useAuth } from '../contexts/AuthContext';
 import * as XLSX from 'xlsx';
 import { Download, Trash2 } from 'lucide-react';
@@ -62,7 +62,7 @@ export default function AdminList() {
           batch.update(userRef, {
               selectedTopicId: null,
               selectedTopicName: null,
-              createdAt: null // Or keep createdAt? Probably reset for new selection.
+              createdAt: null
           });
 
           // Reset Topic Data
@@ -118,7 +118,6 @@ export default function AdminList() {
           alert("Error seeding topics. Check console.");
       } finally {
           setLoading(false);
-          // Optional: Refresh list if we were showing topics here, but we are showing allocations.
       }
   };
 
