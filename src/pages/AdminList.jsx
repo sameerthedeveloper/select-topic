@@ -11,27 +11,38 @@ import * as XLSX from "xlsx";
 import { Trash2 } from "lucide-react";
 import { osTopics } from "../data/osTopics";
 
+const ADMIN_PASSWORD = "cresc2026";
+
 export default function AdminList() {
+  const [isAuthed, setIsAuthed] = useState(false);
+  const [passwordInput, setPasswordInput] = useState("");
+
   const [allocations, setAllocations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
 
-  // 🔐 Password Gate State
-  const [allowed, setAllowed] = useState(
-    () => sessionStorage.getItem("adminUnlocked") === "true"
-  );
-  const [pwd, setPwd] = useState("");
-
   const pageSize = 8;
+
+  // 🔐 Simple Password Gate
+  const handlePasswordSubmit = (e) => {
+    e.preventDefault();
+    if (passwordInput === ADMIN_PASSWORD) {
+      setIsAuthed(true);
+    } else {
+      alert("❌ Wrong password");
+    }
+  };
 
   // 🔄 Real-time Fetch
   useEffect(() => {
+    if (!isAuthed) return;
+
     const unsub = onSnapshot(collection(db, "users"), (snapshot) => {
-      const data = snapshot.docs.map((doc) => {
-        const d = doc.data();
+      const data = snapshot.docs.map((docSnap) => {
+        const d = docSnap.data();
         return {
-          uid: doc.id,
+          uid: docSnap.id,
           name: d.name,
           email: d.email,
           topicId: d.selectedTopicId,
@@ -44,7 +55,7 @@ export default function AdminList() {
     });
 
     return () => unsub();
-  }, []);
+  }, [isAuthed]);
 
   // 🔍 Search
   const filtered = useMemo(() => {
@@ -136,37 +147,31 @@ export default function AdminList() {
     }
   };
 
-  // 🔐 Password Gate UI
-  if (!allowed) {
+  // 🔐 Render Password Screen First
+  if (!isAuthed) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#F2F2F7]">
-        <div className="bg-white p-8 rounded-xl shadow text-center space-y-4">
-          <h2 className="text-xl font-bold">Enter Access Password</h2>
+        <form
+          onSubmit={handlePasswordSubmit}
+          className="bg-white p-6 rounded shadow w-80"
+        >
+          <h2 className="text-xl font-bold mb-4 text-center">Admin Access</h2>
           <input
             type="password"
-            placeholder="Password"
-            className="border p-2 rounded w-64"
-            value={pwd}
-            onChange={(e) => setPwd(e.target.value)}
+            placeholder="Enter admin password"
+            className="w-full p-2 border rounded mb-4"
+            value={passwordInput}
+            onChange={(e) => setPasswordInput(e.target.value)}
           />
-          <button
-            onClick={() => {
-              if (pwd === "cresc2026") {
-                sessionStorage.setItem("adminUnlocked", "true");
-                setAllowed(true);
-              } else {
-                alert("Wrong password ❌");
-              }
-            }}
-            className="bg-blue-600 text-white px-4 py-2 rounded"
-          >
+          <button className="w-full bg-black text-white py-2 rounded">
             Enter
           </button>
-        </div>
+        </form>
       </div>
     );
   }
 
+  // ⏳ Loading after auth
   if (loading) {
     return (
       <div className="p-12 text-center text-gray-400">
@@ -181,12 +186,8 @@ export default function AdminList() {
         <div className="flex justify-between mb-4">
           <h1 className="text-2xl font-bold">Admin Allocations</h1>
           <div className="space-x-3">
-            <button onClick={seedTopics} className="text-blue-600">
-              Seed
-            </button>
-            <button onClick={exportToExcel} className="text-blue-600">
-              Export
-            </button>
+            <button onClick={seedTopics} className="text-blue-600">Seed</button>
+            <button onClick={exportToExcel} className="text-blue-600">Export</button>
           </div>
         </div>
 
@@ -234,21 +235,9 @@ export default function AdminList() {
 
         {/* Pagination */}
         <div className="flex justify-center gap-2 mt-4">
-          <button
-            disabled={page === 1}
-            onClick={() => setPage((p) => p - 1)}
-          >
-            Prev
-          </button>
-          <span>
-            Page {page} / {totalPages || 1}
-          </span>
-          <button
-            disabled={page === totalPages}
-            onClick={() => setPage((p) => p + 1)}
-          >
-            Next
-          </button>
+          <button disabled={page === 1} onClick={() => setPage(p => p - 1)}>Prev</button>
+          <span>Page {page} / {totalPages || 1}</span>
+          <button disabled={page === totalPages} onClick={() => setPage(p => p + 1)}>Next</button>
         </div>
       </div>
     </div>
