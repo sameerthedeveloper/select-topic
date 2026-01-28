@@ -16,7 +16,7 @@ export const osTopics = [
     { id: 'windows_server_2019', name: 'Windows Server 2019', description: 'Server OS based on Windows 10.' },
 
     // --- macOS / Apple Family ---
-    { id: 'macos_tahoe', name: 'macOS Tahoe', description: 'macOS 26, the latest version of Apple\'s desktop OS with liquid glass.' }
+    { id: 'macos_tahoe', name: 'macOS Tahoe', description: 'macOS 26, the latest version of Apple\'s desktop OS with liquid glass.' },
     { id: 'macos_sequoia', name: 'macOS Sequoia', description: 'macOS 15, the latest version of Apple\'s desktop OS.' },
     { id: 'macos_sonoma', name: 'macOS Sonoma', description: 'macOS 14, introduced desktop widgets and Game Mode.' },
     { id: 'macos_ventura', name: 'macOS Ventura', description: 'macOS 13, introduced Stage Manager.' },
