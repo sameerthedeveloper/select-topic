@@ -85,7 +85,7 @@ export const osTopics = [
     { id: 'ubuntu_touch', name: 'Ubuntu Touch', description: 'Mobile version of the Ubuntu operating system.' },
     { id: 'tizen', name: 'Tizen', description: 'Linux-based mobile OS, used in Samsung watches/TVs.' },
     { id: 'funtouch', name: 'FunTouchOS', description: 'Distributed operating system developed by Vivo.' },
-    
+     { id: 'symbionos', name: 'SymbionOS', description: 'Distributed operating system developed by Symbion.' },
     // --- Unix / BSD family ---
     { id: 'freebsd', name: 'FreeBSD', description: 'Operating system used to power modern servers, desktops, and embedded platforms.' },
     { id: 'openbsd', name: 'OpenBSD', description: 'Focused on security and code correctness.' },
