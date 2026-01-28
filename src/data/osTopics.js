@@ -84,8 +84,8 @@ export const osTopics = [
     { id: 'sailfish_os', name: 'Sailfish OS', description: 'Linux-based mobile operating system by Jolla.' },
     { id: 'ubuntu_touch', name: 'Ubuntu Touch', description: 'Mobile version of the Ubuntu operating system.' },
     { id: 'tizen', name: 'Tizen', description: 'Linux-based mobile OS, used in Samsung watches/TVs.' },
-
     { id: 'funtouch', name: 'FunTouchOS', description: 'Distributed operating system developed by Vivo.' },
+    
     // --- Unix / BSD family ---
     { id: 'freebsd', name: 'FreeBSD', description: 'Operating system used to power modern servers, desktops, and embedded platforms.' },
     { id: 'openbsd', name: 'OpenBSD', description: 'Focused on security and code correctness.' },
@@ -97,6 +97,7 @@ export const osTopics = [
     { id: 'minix_3', name: 'MINIX 3', description: 'Microkernel OS, mainly for educational purposes.' },
 
     // --- Other / Historical / Research ---
+    { id: 'inferno_os', name: 'InfernoOS', description: 'Inferno is a distributed operating system started at Bell Labs.' },
     { id: 'chrome_os', name: 'ChromeOS', description: 'Gentoo-based OS by Google, centering on the Chrome browser.' },
     { id: 'ms_dos', name: 'MS-DOS', description: 'Main OS for IBM PC compatibles during the 1980s.' },
     { id: 'freedos', name: 'FreeDOS', description: 'Free software compatible with MS-DOS systems.' },
