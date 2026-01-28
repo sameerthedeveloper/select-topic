@@ -5,33 +5,25 @@ import {
   onSnapshot,
   doc,
   writeBatch,
-  setDoc,
-  updateDoc,
   getDoc
 } from "firebase/firestore";
-import { useAuth } from "../contexts/AuthContext";
 import * as XLSX from "xlsx";
 import { Trash2 } from "lucide-react";
 import { osTopics } from "../data/osTopics";
-import { useNavigate } from "react-router-dom";
 
 export default function AdminList() {
-  const { currentUser, userRole } = useAuth(); // assume userRole = "admin" | "student"
-  const navigate = useNavigate();
-
   const [allocations, setAllocations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
 
-  const pageSize = 8;
+  // 🔐 Password Gate State
+  const [allowed, setAllowed] = useState(
+    () => sessionStorage.getItem("adminUnlocked") === "true"
+  );
+  const [pwd, setPwd] = useState("");
 
-  // 🔐 Admin Guard
-  useEffect(() => {
-    if (!currentUser || userRole !== "admin") {
-      navigate("/login");
-    }
-  }, [currentUser, userRole, navigate]);
+  const pageSize = 8;
 
   // 🔄 Real-time Fetch
   useEffect(() => {
@@ -144,8 +136,43 @@ export default function AdminList() {
     }
   };
 
+  // 🔐 Password Gate UI
+  if (!allowed) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#F2F2F7]">
+        <div className="bg-white p-8 rounded-xl shadow text-center space-y-4">
+          <h2 className="text-xl font-bold">Enter Access Password</h2>
+          <input
+            type="password"
+            placeholder="Password"
+            className="border p-2 rounded w-64"
+            value={pwd}
+            onChange={(e) => setPwd(e.target.value)}
+          />
+          <button
+            onClick={() => {
+              if (pwd === "cresc2026") {
+                sessionStorage.setItem("adminUnlocked", "true");
+                setAllowed(true);
+              } else {
+                alert("Wrong password ❌");
+              }
+            }}
+            className="bg-blue-600 text-white px-4 py-2 rounded"
+          >
+            Enter
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   if (loading) {
-    return <div className="p-12 text-center text-gray-400">Loading allocations...</div>;
+    return (
+      <div className="p-12 text-center text-gray-400">
+        Loading allocations...
+      </div>
+    );
   }
 
   return (
@@ -154,8 +181,12 @@ export default function AdminList() {
         <div className="flex justify-between mb-4">
           <h1 className="text-2xl font-bold">Admin Allocations</h1>
           <div className="space-x-3">
-            <button onClick={seedTopics} className="text-blue-600">Seed</button>
-            <button onClick={exportToExcel} className="text-blue-600">Export</button>
+            <button onClick={seedTopics} className="text-blue-600">
+              Seed
+            </button>
+            <button onClick={exportToExcel} className="text-blue-600">
+              Export
+            </button>
           </div>
         </div>
 
@@ -188,7 +219,10 @@ export default function AdminList() {
                 <td className="p-3 text-xs text-gray-400">{row.time}</td>
                 <td className="p-3 text-center">
                   {row.topicId && (
-                    <button onClick={() => handleUnselect(row)} className="text-red-500">
+                    <button
+                      onClick={() => handleUnselect(row)}
+                      className="text-red-500"
+                    >
                       <Trash2 className="w-5 h-5" />
                     </button>
                   )}
@@ -200,9 +234,21 @@ export default function AdminList() {
 
         {/* Pagination */}
         <div className="flex justify-center gap-2 mt-4">
-          <button disabled={page === 1} onClick={() => setPage(p => p - 1)}>Prev</button>
-          <span>Page {page} / {totalPages || 1}</span>
-          <button disabled={page === totalPages} onClick={() => setPage(p => p + 1)}>Next</button>
+          <button
+            disabled={page === 1}
+            onClick={() => setPage((p) => p - 1)}
+          >
+            Prev
+          </button>
+          <span>
+            Page {page} / {totalPages || 1}
+          </span>
+          <button
+            disabled={page === totalPages}
+            onClick={() => setPage((p) => p + 1)}
+          >
+            Next
+          </button>
         </div>
       </div>
     </div>
