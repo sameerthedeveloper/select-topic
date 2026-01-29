@@ -3,7 +3,7 @@ import { db } from '../firebase';
 import { collection, getDocs, doc, writeBatch, setDoc, updateDoc, getDoc, deleteDoc } from 'firebase/firestore';
 import { useAuth } from '../contexts/AuthContext';
 import * as XLSX from 'xlsx';
-import { Download, Trash2, Lock, Check, X } from 'lucide-react';
+import { Download, Trash2, Lock, Check, X, ToggleLeft, ToggleRight } from 'lucide-react';
 import { osTopics } from '../data/osTopics';
 
 export default function AdminList() {
@@ -13,6 +13,7 @@ export default function AdminList() {
   const [loading, setLoading] = useState(true);
   const [isAdminAuth, setIsAdminAuth] = useState(false);
   const [password, setPassword] = useState('');
+  const [isSelectionEnabled, setIsSelectionEnabled] = useState(true);
 
   async function fetchData() {
       try {
@@ -33,6 +34,17 @@ export default function AdminList() {
           });
           setAllocations(data.filter(u => u.status !== 'pending' && (u.email.endsWith('@crescent.education') || u.status === 'approved')));
           setPendingUsers(data.filter(u => u.status === 'pending'));
+
+          // Fetch Global Settings
+          const settingsRef = doc(db, 'settings', 'global');
+          const settingsSnap = await getDoc(settingsRef);
+          if (settingsSnap.exists()) {
+              setIsSelectionEnabled(settingsSnap.data().selectionEnabled ?? true);
+          } else {
+               // Create if not exists
+               await setDoc(settingsRef, { selectionEnabled: true });
+               setIsSelectionEnabled(true);
+          }
       } catch (error) {
           console.error("Error fetching data", error);
       } finally {
@@ -150,6 +162,21 @@ export default function AdminList() {
       }
   };
 
+
+
+  const toggleSelection = async () => {
+      const newState = !isSelectionEnabled;
+      if (!window.confirm(`Are you sure you want to ${newState ? 'ENABLE' : 'DISABLE'} topic selection for all students?`)) return;
+
+      try {
+          await setDoc(doc(db, 'settings', 'global'), { selectionEnabled: newState }, { merge: true });
+          setIsSelectionEnabled(newState);
+      } catch (e) {
+          console.error("Error updating settings:", e);
+          alert("Failed to update settings.");
+      }
+  };
+
   const handleLogin = (e) => {
     e.preventDefault();
     if (password === 'admin') {
@@ -202,7 +229,14 @@ export default function AdminList() {
                     </span>
                  </div>
             </div>
-            <div className="flex space-x-3">
+             <div className="flex space-x-3 items-center">
+                 <button
+                    onClick={toggleSelection}
+                    className={`flex items-center gap-2 px-3 py-2 rounded-lg font-medium transition-colors ${isSelectionEnabled ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}
+                 >
+                    {isSelectionEnabled ? <ToggleRight className="w-5 h-5" /> : <ToggleLeft className="w-5 h-5" />}
+                    {isSelectionEnabled ? 'Enabled' : 'Disabled'}
+                 </button>
                  <button
                     onClick={seedTopics}
                     className="p-2 text-[#007AFF] font-medium text-[17px] active:opacity-60 transition-opacity"

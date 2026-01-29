@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { db } from '../firebase';
-import { collection, query, where, getDocs, runTransaction, doc, serverTimestamp, setDoc } from 'firebase/firestore';
+import { collection, query, where, getDocs, runTransaction, doc, serverTimestamp, setDoc, getDoc } from 'firebase/firestore';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { LogOut, Lock } from 'lucide-react';
@@ -16,6 +16,7 @@ export default function TopicSelection() {
   
   const [rrnInput, setRrnInput] = useState('');
   const [submittingRrn, setSubmittingRrn] = useState(false);
+  const [isSelectionEnabled, setIsSelectionEnabled] = useState(true);
 
   useEffect(() => {
     // If user already has a topic, redirect to dashboard
@@ -45,7 +46,18 @@ export default function TopicSelection() {
       }
     }
 
+
+
+    async function checkSettings() {
+       const docRef = doc(db, 'settings', 'global');
+       const docSnap = await getDoc(docRef);
+       if (docSnap.exists()) {
+           setIsSelectionEnabled(docSnap.data().selectionEnabled ?? true);
+       }
+    }
+
     fetchTopics();
+    checkSettings();
   }, [userData, navigate]);
 
   useEffect(() => {
@@ -231,6 +243,13 @@ export default function TopicSelection() {
             </div>
         )}
         
+        {!isSelectionEnabled && (
+            <div className="mb-6 bg-yellow-50 border border-yellow-200 rounded-2xl p-4 flex items-center shadow-sm">
+                 <Lock className="w-5 h-5 text-yellow-600 mr-3 flex-shrink-0" />
+                 <span className="text-yellow-800 font-medium text-[15px]">Topic selection is currently paused by the administrator.</span>
+            </div>
+        )}
+
         <div className="space-y-4">
           {filteredTopics.map((topic) => (
             <div key={topic.id} className="group bg-white rounded-2xl p-5 shadow-sm active:scale-[0.99] transition-all duration-200 flex flex-col sm:flex-row sm:items-center justify-between">
@@ -243,10 +262,10 @@ export default function TopicSelection() {
               <div className="flex-shrink-0">
                   <button
                     onClick={() => handleSelectTopic(topic.id, topic.name)}
-                    disabled={loading}
+                    disabled={loading || !isSelectionEnabled}
                     className="w-full sm:w-auto px-6 py-2.5 bg-[#007AFF] text-white font-semibold text-[15px] rounded-full hover:bg-[#0062cc] disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors shadow-sm"
                   >
-                    Select
+                    {isSelectionEnabled ? 'Select' : 'Paused'}
                   </button>
               </div>
             </div>
